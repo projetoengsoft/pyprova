@@ -9,10 +9,6 @@ poetry install
 ```
 poetry shell
 ```
-#### Inicie a aplicação backend:
-```
-flask run
-```
 #### Crie a instância de banco de dados:
 ```
 flask db init
@@ -24,6 +20,10 @@ flask db migrate -m "alguma mensagem"
 #### Execute as migrações
 ```
 flask db upgrade
+```
+#### Inicie a aplicação backend:
+```
+flask run
 ```
 ## Instruções para o frontend
 #### navegue para a pasta da aplicação:

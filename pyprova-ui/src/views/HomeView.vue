@@ -2,6 +2,33 @@
 import Navbar from '../components/Navbar.vue';
 </script>
 
+<script>
+import axios from 'axios';
+// export default {
+//   name: 'Ping',
+//   data() {
+//     return {
+//       msg: '',
+//     };
+//   },
+//   methods: {
+//     getMessage() {
+//       const path = `${import.meta.env.VITE_API_URL}ping`;
+//       axios.get(path)
+//         .then((res) => {
+//           this.msg = res.data;
+//         })
+//         .catch((error) => {
+//           console.error(error);
+//         });
+//     },
+//   },
+//   created() {
+//     this.getMessage();
+//   },
+// };
+</script>
+
 <template>
   <Navbar />
   <div class="hero-body">

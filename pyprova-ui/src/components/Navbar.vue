@@ -2,6 +2,26 @@
 import { RouterLink, RouterView } from 'vue-router';
 </script>
 
+<script>
+export default{
+  data() {
+    return {
+      token: sessionStorage.getItem('token')
+    };
+  },
+  methods: {
+    logout() {
+      sessionStorage.removeItem('token');
+    }
+  }
+};
+  var isLogged = 
+
+  function logout(){
+    sessionStorage.removeItem('token');
+  }
+</script>
+
 <template>
     <div class="hero-head">
         <nav class="navbar">
@@ -11,16 +31,16 @@ import { RouterLink, RouterView } from 'vue-router';
                         <a class="navbar-item">
                             <RouterLink to="/">Home</RouterLink>
                         </a>
-                        <a class="navbar-item">
+                        <a v-if="isLogged !== undefined" class="navbar-item">
                             <RouterLink to="/profile">Profile</RouterLink>
                         </a>
-                        <a class="navbar-item">
+                        <a v-if="isLogged === undefined" class="navbar-item">
                             <RouterLink to="/login">Login</RouterLink>
                         </a>
-                        <a class="navbar-item">
+                        <a v-if="isLogged === undefined" class="navbar-item">
                             <RouterLink to="/signup">Sign Up</RouterLink>
                         </a>
-                        <a href="#" class="navbar-item">
+                        <a v-if="isLogged !== undefined" href="#" v-on:click="logout" class="navbar-item">
                             Logout
                         </a>
                     </div>

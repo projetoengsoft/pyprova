@@ -1,31 +1,43 @@
-<script setup>
-import Navbar from '../components/Navbar.vue'
-</script>
-
 <script>
-  import axios from 'axios';
+import Navbar from '../components/Navbar.vue'
+import axios from 'axios';
+import { ref } from 'vue';
 
-  var inputFields = {
-    email: '',
-    name: '',
-    password: ''
-  }
+export default{
+  setup() {
+    var inputFields = ref({
+      email: '',
+      name: '',
+      password: ''
+    })
 
-  function getFields(event){
-    const path = `${import.meta.env.VITE_API_URL}signup`;
-    axios.post(path, inputFields, {
-      headers:{
-        'Content-Type': 'application/json'
-      }
-    })
-    .then((res) => {
-      console.log(res);
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-    event.preventDefault();
+    return {
+      inputFields
+    }
+  },
+  methods: {
+    getFields(event){
+      const path = `${import.meta.env.VITE_API_URL}signup`;
+      axios.post(path, this.inputFields, {
+        headers:{
+          'Content-Type': 'application/json'
+        }
+      })
+      .then((res) => {
+        if(res.data.success){
+          console.log('redirect to login')
+        } else {
+          throw new Error(res.data.message)
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+      event.preventDefault();
+    }
   }
+}
+
 </script>
 
 <template>

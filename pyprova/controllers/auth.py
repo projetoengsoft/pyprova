@@ -16,9 +16,15 @@ def login():
     }
     message = login_service(user_data)
   except Exception as e:
-    message = traceback.format_exc()
+    return {
+      'success': False,
+      'message': traceback.format_exc()
+    }
   
-  return message
+  return {
+    'success': True,
+    'message': message
+  }
 
 
 @auth.route('/signup', methods=['POST'])
@@ -33,6 +39,12 @@ def signup():
     }
     message = signup_service(user_data)
   except Exception as e:
-    message = traceback.format_exc()
+    return {
+      'success': False,
+      'message': traceback.format_exc()
+    }
   
-  return message
+  return {
+    'success': True,
+    'message': message
+  }

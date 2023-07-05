@@ -1,25 +1,24 @@
-<script setup>
-import { RouterLink, RouterView } from 'vue-router';
-</script>
-
 <script>
-export default{
-  data() {
+import { RouterLink, RouterView } from 'vue-router';
+import { ref } from 'vue';
+
+export default {
+  setup() {
+    var token = ref(sessionStorage.getItem('token'))
     return {
-      token: sessionStorage.getItem('token')
-    };
+      token
+    }
   },
   methods: {
     logout() {
       sessionStorage.removeItem('token');
+      console.log('token removido, redirecionar para home')
     }
-  }
+  },
+  // mounted(){
+  //   console.log(this.token)
+  // }
 };
-  var isLogged = 
-
-  function logout(){
-    sessionStorage.removeItem('token');
-  }
 </script>
 
 <template>
@@ -31,16 +30,16 @@ export default{
                         <a class="navbar-item">
                             <RouterLink to="/">Home</RouterLink>
                         </a>
-                        <a v-if="isLogged !== undefined" class="navbar-item">
+                        <a v-if="token" class="navbar-item">
                             <RouterLink to="/profile">Profile</RouterLink>
                         </a>
-                        <a v-if="isLogged === undefined" class="navbar-item">
+                        <a v-if="!token" class="navbar-item">
                             <RouterLink to="/login">Login</RouterLink>
                         </a>
-                        <a v-if="isLogged === undefined" class="navbar-item">
+                        <a v-if="!token" class="navbar-item">
                             <RouterLink to="/signup">Sign Up</RouterLink>
                         </a>
-                        <a v-if="isLogged !== undefined" href="#" v-on:click="logout" class="navbar-item">
+                        <a v-if="token" href="#" v-on:click="logout" class="navbar-item">
                             Logout
                         </a>
                     </div>

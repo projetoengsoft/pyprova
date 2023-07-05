@@ -7,7 +7,7 @@ def signup_service(user_data):
   user = User.query.filter_by(email=user_data['email']).first()
   
   if user:
-    return 'User already registered!'
+    raise Exception('User already registered!')
   
   new_user = User(email=user_data['email'], name=user_data['name'], 
   password=generate_password_hash(password=user_data['password'], method='sha256'))
@@ -22,6 +22,6 @@ def login_service(user_data):
   user = User.query.filter_by(email=user_data['email']).first()
 
   if not user or not check_password_hash(user.password, user_data['password']):
-    return 'Please check your login details and try again.'
+    raise Exception('Please check your login details and try again.')
 
   return 'token'

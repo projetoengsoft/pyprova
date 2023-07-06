@@ -10,8 +10,11 @@ export default{
       password: '',
     })
 
+    var isLogged = ref(sessionStorage.getItem('token'))
+
     return {
-      inputFields
+      inputFields,
+      isLogged,
     }
   },
   methods: {
@@ -24,16 +27,21 @@ export default{
       })
       .then((res) => {
         if(res.data.success){
-          sessionStorage.setItem('token', 'jwt-token')
-          console.log('redirect to profile')
+          sessionStorage.setItem('token', res.data.message)
+          this.$router.push('profile')
         } else {
           throw new Error(res.data.message)
         }
       })
       .catch((err) => {
-        console.log(err);
+        alert(err);
       });
       event.preventDefault();
+    }
+  },
+  mounted() {
+    if(this.isLogged) {
+      this.$router.push('profile')
     }
   }
 }

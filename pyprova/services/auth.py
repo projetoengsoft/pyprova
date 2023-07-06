@@ -1,4 +1,8 @@
+from flask import jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
+
+from flask_jwt_extended import create_access_token
+
 from ..models.user import User
 from .. import db
 
@@ -23,5 +27,7 @@ def login_service(user_data):
 
   if not user or not check_password_hash(user.password, user_data['password']):
     raise Exception('Please check your login details and try again.')
-
-  return 'token'
+  
+  access_token = create_access_token(identity=user_data['email'])
+  # return jsonify(access_token=access_token)
+  return access_token

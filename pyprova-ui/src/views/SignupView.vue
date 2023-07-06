@@ -11,8 +11,11 @@ export default{
       password: ''
     })
 
+    var isLogged = ref(sessionStorage.getItem('token'))
+
     return {
-      inputFields
+      inputFields,
+      isLogged,
     }
   },
   methods: {
@@ -25,15 +28,21 @@ export default{
       })
       .then((res) => {
         if(res.data.success){
-          console.log('redirect to login')
+          alert(res.data.message)
+          this.$router.push('login')
         } else {
           throw new Error(res.data.message)
         }
       })
       .catch((err) => {
-        console.log(err);
+        alert(err);
       });
       event.preventDefault();
+    }
+  },
+  mounted() {
+    if(this.isLogged) {
+      this.$router.push('profile')
     }
   }
 }

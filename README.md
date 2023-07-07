@@ -21,6 +21,7 @@ flask db migrate -m "alguma mensagem"
 ```
 flask db upgrade
 ```
+#### Execute os scripts SQL da pasta db.utils no banco gerado (temporário)
 #### Inicie a aplicação backend:
 ```
 flask run

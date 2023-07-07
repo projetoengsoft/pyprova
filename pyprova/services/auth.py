@@ -31,3 +31,12 @@ def login_service(user_data):
   access_token = create_access_token(identity=user_data['email'])
   # return jsonify(access_token=access_token)
   return access_token
+
+
+def get_user_by_email(email):
+  user = User.query.filter_by(email=email).first()
+  
+  if not user:
+    raise Exception('User doesn\'t exists')
+  
+  return user

@@ -30,7 +30,11 @@ flask run
 ```
 cd pyprova-ui
 ```
-#### Instale as dependências (versão utilizada do node: v18.15.0, recomenda-se [nvm](https://github.com/nvm-sh/nvm))
+#### Configure as variáveis de ambiente copiando o arquivo de exemplo:
+```
+cp .env.example .env
+```
+#### Instale as dependências (versão utilizada do node: v18.15.0, recomenda-se [nvm](https://github.com/nvm-sh/nvm)):
 ```
 npm install
 ```

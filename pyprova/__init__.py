@@ -28,6 +28,7 @@ def create_app():
     jwt = JWTManager(app)
     
     from .models.user import User
+    from .models.prova import Prova, Questao, Resposta
     
     from .controllers.auth import auth as auth_blueprint
     app.register_blueprint(auth_blueprint)

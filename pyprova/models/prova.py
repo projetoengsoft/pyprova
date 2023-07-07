@@ -1,15 +1,15 @@
 from .. import db
 from .user import User
 
-class Prova(db.model):
+class Prova(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     professor = db.Column(db.ForeignKey(User.id, ondelete='CASCADE'))
     inicio = db.Column(db.DateTime)
     fim = db.Column(db.DateTime)
 
-class Questao(db.model):
+class Questao(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    prova = db.Column(db.ForeignKey(Prova, ondelete='CASCADE'))
+    prova = db.Column(db.ForeignKey(Prova.id, ondelete='CASCADE'))
     tipo = db.Column(db.String(100))
     comando = db.Column(db.String(2000))
     opcoes = db.Column(db.String(2000))
@@ -17,9 +17,9 @@ class Questao(db.model):
     valor = db.Column(db.Integer)
 
 
-class Resposta(db.model):
+class Resposta(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    prova = db.Column(db.ForeignKey(Prova, ondelete='CASCADE'))
-    questao = db.Column(db.ForeignKey(Questao, ondelete='CASCADE'))
+    prova = db.Column(db.ForeignKey(Prova.id, ondelete='CASCADE'))
+    questao = db.Column(db.ForeignKey(Questao.id, ondelete='CASCADE'))
     aluno = db.Column(db.ForeignKey(User.id))
     resposta = db.Column(db.String(1000))

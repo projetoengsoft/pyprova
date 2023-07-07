@@ -12,7 +12,7 @@ export default {
   methods: {
     logout() {
       sessionStorage.removeItem('token');
-      console.log('token removido, redirecionar para home')
+      this.$router.push('login')
     }
   },
   // mounted(){

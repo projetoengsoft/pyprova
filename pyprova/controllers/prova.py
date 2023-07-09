@@ -23,6 +23,8 @@ def modify_prova(prova_id, method):
             message = update_prova(prova_data)
         elif method == 'delete':
             message = delete_prova(prova_id)
+        elif method == 'register' and "current_user.tipo" == 'aluno':
+            register_prova(prova_id, "current_user.id")
         else:
             raise(f"Method {method} do not exist!")
     except Exception as e:
@@ -65,3 +67,16 @@ def modify_questao(prova_id, questao_id, method):
         return {'success': False, 'message': traceback.format_exc()}
     return {'success': True, 'message': message}
 
+@prova.route('/review', methods=['GET'])
+def review_prova(prova_id):
+    try:
+        # TODO: get current user
+        if "current_user.tipo" == 'professor':
+            message = gen_feed_back(prova_id)
+            message['tipo'] = 'professor'
+        else:
+            message = gen_feedback_individual(prova_id, "current_user.id")
+            message['tipo'] = 'aluno'
+    except Exception as e:
+        return {'success': False, 'message': traceback.format_exc()}
+    return {'success': True, 'message': message}

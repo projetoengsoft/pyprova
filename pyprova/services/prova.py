@@ -34,6 +34,39 @@ def delete_prova(prova_id):
     raise('Prova not found!')
 
 
+def index_provas(id, tipo):
+    if tipo == 'professor':
+        return index_provas_professor(id)
+    elif tipo == 'aluno':
+        return index_provas_aluno(id)
+    raise("Tipo de usuario invalido!")
+
+
+def index_provas_professor(id):
+    message = {'provas': []}
+
+    provas = Prova.query.filter_by(professor=id)
+
+    for p in provas:
+        prova = {'id': p.id, 'inicio': p.inicio, 'fim': p.fim}
+        message['provas'].append(prova)
+
+    return message
+
+
+def index_provas_aluno(id):
+    message = {'provas': []}
+
+    inscricoes = Inscricao.query.filter_by(aluno=id)
+
+    for i in inscricoes:
+        p = i.prova
+        prova = {'id': p.id, 'inicio': p.inicio, 'fim': p.fim}
+        message['provas'].append(prova)
+
+    return message
+
+
 def create_questao(questao_data):
     opcoes = ";;".join(questao_data['opcoes'])
     new_questao = Questao(prova=questao_data['prova'], tipo=questao_data['tipo'], comando=questao_data['comando'],
@@ -150,3 +183,13 @@ def gen_feed_back(prova_id):
         alunos[i.id] = gen_feedback_individual(aluno_id=i.id, prova_id=prova_id)
 
     return alunos
+
+def register_prova(prova_id, aluno_id):
+    inscricao = Inscricao.query.filter_by(prova_id, aluno_id).first()
+
+    if not inscricao:
+        new_inscricao = Inscricao(aluno=aluno_id, prova=prova_id)
+        db.session.add(new_inscricao)
+        db.session.commit()
+        create_respostas(aluno_id,prova_id)
+

@@ -36,6 +36,9 @@ def create_app():
     from .controllers.main import main as main_blueprint
     app.register_blueprint(main_blueprint)
 
+    from .controllers.prova import prova as prova_blueprint
+    app.register_blueprint(prova_blueprint)
+
     migrate = Migrate(app, db)
     
     return app

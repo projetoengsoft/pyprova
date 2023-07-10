@@ -7,7 +7,7 @@ from ..services.prova import *
 
 main = Blueprint('main', __name__)
 
-@main.route('/', methods=['GET'])
+@main.route('', methods=['GET'])
 def index_provas():
     try:
         message = index_provas("current_user.id", "current_user.tipo")

@@ -50,7 +50,7 @@ def index_provas_professor(id):
     for p in provas:
         prova = {'id': p.id, 'inicio': p.inicio, 'fim': p.fim}
         message['provas'].append(prova)
-
+    message['edit'] = True
     return message
 
 
@@ -63,12 +63,15 @@ def index_provas_aluno(id):
         p = i.prova
         prova = {'id': p.id, 'inicio': p.inicio, 'fim': p.fim}
         message['provas'].append(prova)
-
+    message['edit'] = False
     return message
 
 
 def create_questao(questao_data):
-    opcoes = ";;".join(questao_data['opcoes'])
+    opcoes = questao_data['opcoes']
+    if questao_data['tipo'] == 'vf':
+        opcoes = ['Verdadeiro', 'Falso']
+    opcoes = ";;".join(opcoes)
     new_questao = Questao(prova=questao_data['prova'], tipo=questao_data['tipo'], comando=questao_data['comando'],
                           opcoes=opcoes, gabarito=questao_data['gabarito'], valor=questao_data['valor'])
     db.session.add(new_questao)
@@ -107,12 +110,28 @@ def get_questoes(prova_id, show_ans=False):
                    'comando': q.comando,
                    'opcoes': q.opcoes.split(';;'),
                    'valor': q.valor,
-                   'gabarito': None}
+                   'gabarito': None,
+                   'resposta': None}
         if show_ans:
             questao['gabarito'] = q.gabarito
         message['questoes'].append(questao)
 
     return message
+
+
+def detail_questao(questao_id):
+    q = Questao.query.filter_by(id=questao_id)
+
+    if not q:
+        raise("Questao not found!")
+
+    questao = {'id': q.id,
+                   'tipo': q.tipo,
+                   'comando': q.comando,
+                   'opcoes': q.opcoes.split(';;'),
+                   'valor': q.valor,
+                   'gabarito': q.gabarito}
+    return {'questao' : questao}
 
 
 def create_respostas(aluno_id, prova_id):
@@ -131,6 +150,7 @@ def update_resposta(resposta_data):
     resposta = Resposta.query.filter_by(aluno=resposta_data['aluno'], questao=resposta_data['questao']).first()
     resposta.resposta = resposta_data['resposta']
     db.session.commit()
+    return "Resposta updated successfully!"
 
 
 def check_num(gabarito,resposta):

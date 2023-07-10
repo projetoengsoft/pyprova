@@ -32,7 +32,7 @@ def modify_prova(prova_id, method):
     return {'success': True, 'message': message}
 
 
-@prova.route('/', methods=['GET'])
+@prova.route('', methods=['GET'])
 def show_prova(prova_id):
     try:
         # TODO: get current user
@@ -61,11 +61,14 @@ def modify_questao(prova_id, questao_id, method):
             message = update_questao(questao_data)
         elif method == 'delete':
             message = delete_questao(questao_data)
+        elif method == 'detail':
+            message = detail_questao(questao_id)
         else:
             raise(f"Method {method} do not exist!")
     except Exception as e:
         return {'success': False, 'message': traceback.format_exc()}
     return {'success': True, 'message': message}
+
 
 @prova.route('/review', methods=['GET'])
 def review_prova(prova_id):
@@ -77,6 +80,17 @@ def review_prova(prova_id):
         else:
             message = gen_feedback_individual(prova_id, "current_user.id")
             message['tipo'] = 'aluno'
+    except Exception as e:
+        return {'success': False, 'message': traceback.format_exc()}
+    return {'success': True, 'message': message}
+
+
+@questao.route('/responder', methods=['POST'])
+def responder(prova_id, questao_id):
+    try:
+        data = request.json
+        resposta_data = {'questao': questao_id, 'resposta': data['resposta'], 'aluno': "current_user"}
+        message = update_resposta(resposta_data)
     except Exception as e:
         return {'success': False, 'message': traceback.format_exc()}
     return {'success': True, 'message': message}

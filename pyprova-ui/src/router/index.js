@@ -3,6 +3,8 @@ import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
 import SignupView from '../views/SignupView.vue'
 import ProfileView from '../views/ProfileView.vue'
+import ProvaView from "../views/ProvaView";
+import QuestaoView from "../views/QuestaoView";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -26,6 +28,16 @@ const router = createRouter({
       path: '/profile',
       name: 'profile',
       component: ProfileView
+    },
+    {
+      path: '/prova/:id',
+      name: 'provaView',
+      component: ProvaView
+    },
+    {
+      path: '/prova/:id/questao/:questao_id/:method',
+      name: 'questaoView',
+      component: QuestaoView,
     }
   ]
 })

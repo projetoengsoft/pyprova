@@ -1,8 +1,9 @@
 <script>
 import Navbar from '../components/Navbar.vue'
 import { ref } from 'vue';
-import axios from "jsdom/lib/jsdom/living/fetch/header-list";
-import ProvaComponent from "../components/Prova";
+import axios from 'axios';
+import jwtDecoder from '../utils/jwtDecoder';
+import ProvaComponent from "../components/Prova.vue";
 
 export default {
   components: {ProvaComponent},
@@ -29,6 +30,8 @@ export default {
     if(!this.isLogged){
       alert('You are not logged!')
       this.$router.push('login')
+    } else {
+      console.log(jwtDecoder(this.isLogged, 'sub'));
     }
   },
   methods: {

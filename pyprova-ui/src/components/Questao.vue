@@ -1,7 +1,6 @@
 <script>
 import axios from 'axios';
 import { ref } from 'vue';
-import questao from "./Questao";
 
 export default {
   name: "QuestaoComponent",

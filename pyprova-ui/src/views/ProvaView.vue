@@ -2,7 +2,7 @@
 import Navbar from '../components/Navbar.vue';
 import axios from 'axios';
 import { ref } from 'vue';
-import QuestaoComponent from "../components/Questao";
+import QuestaoComponent from "../components/Questao.vue";
 
 export default {
   name: "ProvaView",

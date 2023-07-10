@@ -13,7 +13,7 @@ def signup_service(user_data):
   if user:
     raise Exception('User already registered!')
   
-  new_user = User(email=user_data['email'], name=user_data['name'], 
+  new_user = User(email=user_data['email'], name=user_data['name'], profile_type=user_data['profile_type'],
   password=generate_password_hash(password=user_data['password'], method='sha256'))
   
   db.session.add(new_user)

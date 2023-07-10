@@ -33,7 +33,7 @@ def signup():
   message = ''
   try:
     data = request.json
-    user_data = {'email': data['email'],'name': data['name'],'password': data['password']}
+    user_data = {'email': data['email'],'name': data['name'],'password': data['password'], 'profile_type': data['profile']}
     message = signup_service(user_data)
   except Exception as e:
     return {'success': False,'message': traceback.format_exc()}
@@ -45,8 +45,7 @@ def get_user():
   response = {}
   try:
     email = request.args.get("email")
-    print(get_user_by_email(email))
-    response = {}
+    response = get_user_by_email(email)
   except Exception as e:
     return {'success': False,'message': traceback.format_exc()}
   return {'success': True,'response': response}

@@ -7,10 +7,10 @@ import Navbar from '../components/Navbar.vue';
   <div class="hero-body">
     <div class="container has-text-centered">
       <h1 class="title">
-        Flask Login Example
+        pyProva
       </h1>
       <h2 class="subtitle">
-        Easy authentication and authorization in Flask.
+        Answer. Evaluate. Win.
       </h2>
       </div>
   </div>

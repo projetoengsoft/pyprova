@@ -1,6 +1,7 @@
 from .. import db
 from ..models.user import User
-from ..models.prova import Prova, Questao, Resposta
+from ..models.prova import Prova, Questao, Resposta, Inscricao
+
 
 def create_prova(prova_data):
     new_prova = Prova(professor=prova_data['professor'], inicio=prova_data['inicio'], fim=prova_data['fim'])
@@ -19,30 +20,84 @@ def update_prova(prova_data):
         db.session.commit()
 
         return 'Update successful!'
-    return  'Prova not found!'
+    raise('Prova not found!')
 
 
-def delete_prova(prova_data):
-    prova = Prova.query.filter_by(id=prova_data['id']).first()
+def delete_prova(prova_id):
+    prova = Prova.query.filter_by(id=prova_id).first()
 
     if prova:
         db.session.delete(prova)
         db.session.commit()
 
         return 'Deletion successful!'
-    return 'Prova not found!'
+    raise('Prova not found!')
+
+
+def index_provas(id, tipo):
+    if tipo == 'professor':
+        return index_provas_professor(id)
+    elif tipo == 'aluno':
+        return index_provas_aluno(id)
+    raise("Tipo de usuario invalido!")
+
+
+def index_provas_professor(id):
+    message = {'provas': []}
+
+    provas = Prova.query.filter_by(professor=id)
+
+    for p in provas:
+        prova = {'id': p.id, 'inicio': p.inicio, 'fim': p.fim}
+        message['provas'].append(prova)
+    message['edit'] = True
+    return message
+
+
+def index_provas_aluno(id):
+    message = {'provas': []}
+
+    inscricoes = Inscricao.query.filter_by(aluno=id)
+
+    for i in inscricoes:
+        p = i.prova
+        prova = {'id': p.id, 'inicio': p.inicio, 'fim': p.fim}
+        message['provas'].append(prova)
+    message['edit'] = False
+    return message
 
 
 def create_questao(questao_data):
-    pass
+    opcoes = questao_data['opcoes']
+    if questao_data['tipo'] == 'vf':
+        opcoes = ['Verdadeiro', 'Falso']
+    opcoes = ";;".join(opcoes)
+    new_questao = Questao(prova=questao_data['prova'], tipo=questao_data['tipo'], comando=questao_data['comando'],
+                          opcoes=opcoes, gabarito=questao_data['gabarito'], valor=questao_data['valor'])
+    db.session.add(new_questao)
+    db.session.commit()
 
 
 def update_questao(questao_data):
-    pass
+    questao = Questao.query.filter_by(id=questao_data['id']).firtst()
+    if questao:
+        questao.comando = questao_data['comando']
+        opcoes = ";;".join(questao_data['opcoes'])
+        questao.opcoes = opcoes
+        questao.gabarito = questao_data['gabarito']
+        questao.valor = questao_data['valor']
+        db.session.commit()
+        return 'Update successful!'
+    raise('Questao not found!')
 
 
 def delete_questao(questao_data):
-    pass
+    questao = Questao.query.filter_by(id=questao_data['id']).firtst()
+    if questao:
+        db.session.delete(questao)
+        db.session.commit()
+        return 'Update successful!'
+    raise('Questao not found!')
 
 
 def get_questoes(prova_id, show_ans=False):
@@ -55,12 +110,28 @@ def get_questoes(prova_id, show_ans=False):
                    'comando': q.comando,
                    'opcoes': q.opcoes.split(';;'),
                    'valor': q.valor,
-                   'gabarito': None}
+                   'gabarito': None,
+                   'resposta': None}
         if show_ans:
             questao['gabarito'] = q.gabarito
         message['questoes'].append(questao)
 
     return message
+
+
+def detail_questao(questao_id):
+    q = Questao.query.filter_by(id=questao_id)
+
+    if not q:
+        raise("Questao not found!")
+
+    questao = {'id': q.id,
+                   'tipo': q.tipo,
+                   'comando': q.comando,
+                   'opcoes': q.opcoes.split(';;'),
+                   'valor': q.valor,
+                   'gabarito': q.gabarito}
+    return {'questao' : questao}
 
 
 def create_respostas(aluno_id, prova_id):
@@ -79,6 +150,7 @@ def update_resposta(resposta_data):
     resposta = Resposta.query.filter_by(aluno=resposta_data['aluno'], questao=resposta_data['questao']).first()
     resposta.resposta = resposta_data['resposta']
     db.session.commit()
+    return "Resposta updated successfully!"
 
 
 def check_num(gabarito,resposta):
@@ -102,14 +174,42 @@ def check_ans(resposta):
         return check_option(resposta.questao.gabarito, resposta.resposta)
 
 
-# Recebe json gerado por feedback individual
-def calculate_grade(ans_json):
-    pass
-
 
 def gen_feedback_individual(aluno_id, prova_id):
-    pass
+    message = get_questoes(prova_id, show_ans=True)
+    message['total'] = 0
+    message['nota'] = 0
+
+    for q in message['questoes']:
+        resposta = Resposta.query.filter_by(questao=q['id'], aluno=aluno_id)
+        q['resposta'] = resposta.resposta
+        q['correct'] = False
+        message['total'] += q.valor
+        if check_ans(resposta):
+            message['nota'] += q.valor
+            q['correct'] = True
+
+    return message
+
 
 
 def gen_feed_back(prova_id):
-    pass
+    inscritos = Inscricao.query.filter_by(prova=prova_id)
+    inscritos = [i.aluno for i in inscritos]
+
+    alunos = {}
+
+    for i in inscritos:
+        alunos[i.id] = gen_feedback_individual(aluno_id=i.id, prova_id=prova_id)
+
+    return alunos
+
+def register_prova(prova_id, aluno_id):
+    inscricao = Inscricao.query.filter_by(prova_id, aluno_id).first()
+
+    if not inscricao:
+        new_inscricao = Inscricao(aluno=aluno_id, prova=prova_id)
+        db.session.add(new_inscricao)
+        db.session.commit()
+        create_respostas(aluno_id,prova_id)
+

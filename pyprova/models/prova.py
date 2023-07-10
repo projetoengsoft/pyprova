@@ -19,7 +19,12 @@ class Questao(db.Model):
 
 class Resposta(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    prova = db.Column(db.ForeignKey(Prova.id, ondelete='CASCADE'))
     questao = db.Column(db.ForeignKey(Questao.id, ondelete='CASCADE'))
-    aluno = db.Column(db.ForeignKey(User.id))
+    aluno = db.Column(db.ForeignKey(User.id, ondelete='CASCADE'))
     resposta = db.Column(db.String(1000))
+
+
+class Inscricao(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    aluno = db.Column(db.ForeignKey(User.id, ondelete='CASCADE'))
+    prova = db.Column(db.ForeignKey(Prova.id, ondelete='CASCADE'))

@@ -7,7 +7,7 @@ import jwtDecoder from "../utils/jwtDecoder";
 export default {
   name: "QuestaoView",
   setup() {
-    var update = this.$route.params.method === 'update'
+    var update = this.$route.params.method === 'update';
     const renderComponent = ref(true);
     var isLogged = ref(sessionStorage.getItem('token'))
 
@@ -41,10 +41,11 @@ export default {
         'Authorization': `Bearer ${sessionStorage.getItem('token')}`,
       }
     }
-    var info = await axios.get(path,request)
+    this.questao = await axios.get(path,request)
         .then(response => {
           if (response.data.success) {
-            return response.data.message
+            this.forceRender()
+            return response.data.message.questao
           } else {
             throw new Error(response.data.message)
           }
@@ -52,13 +53,6 @@ export default {
         .catch((err) => {
           alert(err);
         });
-      this.questao.id = info.questao.id
-      this.questao.tipo = info.questao.tipo
-      this.questao.comando = info.questao.comando
-      this.questao.opcoes = info.questao.opcoes
-      this.questao.valor = info.questao.valor
-      this.questao.gabarito = info.questao.gabarito
-      this.forceRender()
       },
     async forceRender() {
       this.info.data.provas = []

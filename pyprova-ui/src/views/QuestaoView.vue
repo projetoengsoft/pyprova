@@ -2,11 +2,14 @@
 import Navbar from '../components/Navbar.vue';
 import axios from 'axios';
 import { ref } from 'vue';
+import jwtDecoder from "../utils/jwtDecoder";
 
 export default {
   name: "QuestaoView",
   setup() {
     var update = this.$route.params.method === 'update'
+    const renderComponent = ref(true);
+    var isLogged = ref(sessionStorage.getItem('token'))
 
     var questao = ref({'id': '',
                    'tipo': '',
@@ -15,31 +18,59 @@ export default {
                    'valor': 1,
                    'gabarito': ''})
 
-    if (update) {
-    const path = `${import.meta.env.VITE_API_URL}/prova/${this.$route.params.id}/questao/${this.$route.params.questao_id}/detail`;
-    axios.get(path)
+    return {isLogged, questao, update, renderComponent}
+  },
+
+  mounted() {
+    if (!this.isLogged) {
+      alert('You are not logged!')
+      this.$router.push('login')
+    } else {
+      console.log(jwtDecoder(this.isLogged, 'sub'));
+    }
+    if (this.update) {
+      this.get()
+    }
+  },
+
+  methods: {
+    async get() {
+      const path = `${import.meta.env.VITE_API_URL}/prova/${this.$route.params.id}/questao/${this.$route.params.questao_id}/detail`;
+      var request = {
+      headers: {
+        'Authorization': `Bearer ${sessionStorage.getItem('token')}`,
+      }
+    }
+    var info = await axios.get(path,request)
         .then(response => {
           if (response.data.success) {
-            this.info = response.data.message
-            this.questao.id = this.info.questao.id
-            this.questao.tipo = this.info.questao.tipo
-            this.questao.comando = this.info.questao.comando
-            this.questao.opcoes = this.info.questao.opcoes
-            this.questao.valor = this.info.questao.valor
-            this.questao.gabarito = this.info.questao.gabarito
+            return response.data.message
           } else {
             throw new Error(response.data.message)
           }
         })
         .catch((err) => {
           alert(err);
-        });}
-    event.preventDefault();
+        });
+      this.questao.id = info.questao.id
+      this.questao.tipo = info.questao.tipo
+      this.questao.comando = info.questao.comando
+      this.questao.opcoes = info.questao.opcoes
+      this.questao.valor = info.questao.valor
+      this.questao.gabarito = info.questao.gabarito
+      this.forceRender()
+      },
+    async forceRender() {
+      this.info.data.provas = []
+   // Remove MyComponent from the DOM
+   this.renderComponent = false;
 
-    return {questao, update}
-  },
+   // Then, wait for the change to get flushed to the DOM
+      await this.$nextTick();
 
-  methods: {
+      // Add MyComponent back in
+      this.renderComponent = true;
+    },
     addOpcao(opcao, event){
       this.questao.opcoes.push(opcao)
       event.preventDefault();
@@ -68,7 +99,7 @@ export default {
       });
       event.preventDefault();
     }
-  },
+  }
 }
 </script>
 

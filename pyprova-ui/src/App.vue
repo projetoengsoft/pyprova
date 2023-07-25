@@ -5,7 +5,7 @@ import { RouterLink, RouterView } from 'vue-router'
 <template>
   <body>
     <section class="hero is-primary is-fullheight">
-      <RouterView />
+      <router-view/>
     </section>
   </body>
 </template>

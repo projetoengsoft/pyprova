@@ -1,4 +1,4 @@
-from .. import db
+from ..extensions import db
 from .user import User
 
 class Prova(db.Model):

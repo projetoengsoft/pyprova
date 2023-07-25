@@ -37,6 +37,6 @@ def get_user_by_email(email):
   user = User.query.filter_by(email=email).first()
   
   if not user:
-    raise Exception('User doesn\'t exists')
+    raise Exception(f'User doesn\'t exists {email}')
   
   return user

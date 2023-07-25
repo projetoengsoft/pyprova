@@ -6,12 +6,14 @@ export default {
   name: "ProvaComponent",
 
   props: ['id', 'inicio', 'fim', 'edit'],
+  emits:  ['delete'],
 
   setup(props) {
 
+
     var data = ref({'id': props.id,
                    'inicio': props.inicio,
-                    'fim': props.fim
+                    'fim': props.fim,
                     })
 
     return {data}
@@ -19,10 +21,15 @@ export default {
   },
 
   methods: {
+    viewProva(event){
+      this.$router.push({name: 'provaView', params: {id: this.data.id}})
+      event.preventDefault();
+    },
     updateProva(event){
-      const path = `${import.meta.env.VITE_API_URL}/prova/${this.$router.params.id}/update`;
+      const path = `${import.meta.env.VITE_API_URL}prova/${this.id}/update`;
         axios.post(path, this.data, {
         headers:{
+          'Authorization': `Bearer ${sessionStorage.getItem('token')}`,
           'Content-Type': 'application/json'
         }
       })
@@ -37,14 +44,15 @@ export default {
       event.preventDefault();
     },
     deleteProva(event){
-      const path = `${import.meta.env.VITE_API_URL}/prova/${this.$router.params.id}/delete`;
+      const path = `${import.meta.env.VITE_API_URL}prova/${this.id}/delete`;
         axios.post(path, this.data, {
         headers:{
+          'Authorization': `Bearer ${sessionStorage.getItem('token')}`,
           'Content-Type': 'application/json'
         }
       })
       .then((res) => {
-        if(res.data.success){ /* empty */ } else {
+        if(res.data.success){ this.$emit('delete') } else {
           throw new Error(res.data.message)
         }
       })
@@ -61,7 +69,7 @@ export default {
 <template>
   <div>
     <div>
-      <router-link to="/prova/${data.id}">{{data.id}}</router-link>
+      <a v-on:click="viewProva" class="button">Código: {{data.id}}</a>
       <label>Inicio: <input type="datetime-local" v-model="data.inicio" :disabled="!edit" v-on:input="updateProva"></label>
       <label>Fim: <input type="datetime-local" v-model="data.fim" :disabled="!edit" v-on:input="updateProva"></label>
       <div v-if="edit" class="editButtons">

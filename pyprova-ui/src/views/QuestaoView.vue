@@ -76,7 +76,7 @@ export default {
       event.preventDefault();
     },
     save(event){
-      const path = `${import.meta.env.VITE_API_URL}/prova/${this.$route.params.id}/questao/${this.$route.params.questao_id}/${this.$route.params.method}`;
+      // const path = `${import.meta.env.VITE_API_URL}/prova/${this.$route.params.id}/questao/${this.$route.params.questao_id}/${this.$route.params.method}`;
       axios.post(path, this.questao, {
         headers:{
           'Content-Type': 'application/json'
@@ -84,7 +84,7 @@ export default {
       })
       .then((res) => {
         if(res.data.success){
-          this.$router.push(`/prova/${this.$route.params.id}`)
+          // this.$router.push(`/prova/${this.$route.params.id}`)
         } else {
           throw new Error(res.data.message)
         }

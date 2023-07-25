@@ -35,7 +35,7 @@ export default {
 
   methods: {
     async get() {
-      const path = `${import.meta.env.VITE_API_URL}/prova/${this.$route.params.id}/questao/${this.$route.params.questao_id}/detail`;
+      // const path = `${import.meta.env.VITE_API_URL}/prova/${this.$route.params.id}/questao/${this.$route.params.questao_id}/detail`;
       var request = {
       headers: {
         'Authorization': `Bearer ${sessionStorage.getItem('token')}`,
@@ -54,6 +54,7 @@ export default {
           alert(err);
         });
       },
+
     async forceRender() {
       this.info.data.provas = []
    // Remove MyComponent from the DOM

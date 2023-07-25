@@ -11,12 +11,12 @@ export default {
     const renderComponent = ref(true);
     var isLogged = ref(sessionStorage.getItem('token'))
 
-    var questao = ref({'id': '',
-                   'tipo': '',
-                   'comando': '',
+    var questao = ref({'id': null,
+                   'tipo': null,
+                   'comando': null,
                    'opcoes': [],
                    'valor': 1,
-                   'gabarito': ''})
+                   'gabarito': null})
 
     return {isLogged, questao, update, renderComponent}
   },
@@ -35,7 +35,8 @@ export default {
 
   methods: {
     async get() {
-      // const path = `${import.meta.env.VITE_API_URL}/prova/${this.$route.params.id}/questao/${this.$route.params.questao_id}/detail`;
+      // const path = `${import.meta.env.VITE_API_URL}prova/${this.$route.params.id}questao/${this.$route.params.questao_id}/detail`;
+      const path = `${import.meta.env.VITE_API_URL}`;
       var request = {
       headers: {
         'Authorization': `Bearer ${sessionStorage.getItem('token')}`,

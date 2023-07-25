@@ -69,7 +69,7 @@ export default {
 <template>
   <div>
     <div>
-      <a v-on:click="viewProva">{{data.id}}</a>
+      <a v-on:click="viewProva" class="button">Código: {{data.id}}</a>
       <label>Inicio: <input type="datetime-local" v-model="data.inicio" :disabled="!edit" v-on:input="updateProva"></label>
       <label>Fim: <input type="datetime-local" v-model="data.fim" :disabled="!edit" v-on:input="updateProva"></label>
       <div v-if="edit" class="editButtons">

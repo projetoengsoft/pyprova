@@ -47,7 +47,6 @@ export default {
         });
     },
     async forceRender() {
-      this.info.data.provas = []
    // Remove MyComponent from the DOM
    this.renderComponent = false;
 
@@ -123,10 +122,10 @@ export default {
     <Navbar />
     <div class="hero-body">
         <h1 class="title">Suas Provas</h1>
-      <div v-if="renderComponent" class="provas">
+      <div v-if="renderComponent" class="column is-4 is-offset-4">
         <ul>
           <li v-for="prova in info.data.provas" v-bind:key="prova">
-            <ProvaComponent @delete="forceRender" v-bind="prova" v-bind:edit="info.data.edit"/>
+            <ProvaComponent @delete="get" v-bind="prova" v-bind:edit="info.data.edit"/>
           </li>
         </ul>
         <div v-if="renderComponent">

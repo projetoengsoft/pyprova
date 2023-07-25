@@ -44,22 +44,34 @@ def modify_prova(prova_id, method):
 def show_prova(prova_id):
     try:
         user = get_user_by_email(get_jwt_identity())
-        if user.profile_type == 1:
-            message = get_questoes(prova_id=prova_id, show_ans=True)
-            message['edit'] = True
+        prova = Prova.query.filter_by(id=prova_id).first()
+
+        if prova.fim > datetime.now():
+            if user.profile_type == 1:
+                message = get_questoes(prova_id=prova_id, show_ans=True)
+                message['edit'] = True
+            else:
+                message = get_questoes(prova_id=prova_id, aluno=user.id)
+                message['edit'] = False
         else:
-            message = get_questoes(prova_id=prova_id)
+            if user.profile_type == 1:
+                message = gen_feed_back(prova_id)
+                message['tipo'] = 'professor'
+            else:
+                message = gen_feedback_individual(prova_id=prova_id, aluno_id=user.id)
+                message['tipo'] = 'aluno'
             message['edit'] = False
     except Exception as e:
         return {'success': False, 'message': traceback.format_exc()}
     return {'success': True, 'message': message}
 
 
-@questao.route('/<method>', methods=['POST'])
+@questao.route('/<method>', methods=['POST', 'GET'])
 def modify_questao(prova_id, questao_id, method):
     try:
-        data = request.json
-        questao_data = {'id': questao_id, 'prova': prova_id, 'tipo': data['tipo'], 'comando': data['comando'],
+        if method != 'detail':
+            data = request.json
+            questao_data = {'id': questao_id, 'prova': prova_id, 'tipo': data['tipo'], 'comando': data['comando'],
                         'opcoes': data['opcoes'], 'gabarito': data['gabarito'], 'valor': data['valor']}
 
         if method == 'create':
@@ -77,27 +89,15 @@ def modify_questao(prova_id, questao_id, method):
     return {'success': True, 'message': message}
 
 
-@prova.route('/review', methods=['GET'])
-def review_prova(prova_id):
-    try:
-        # TODO: get current user
-        if "current_user.tipo" == 'professor':
-            message = gen_feed_back(prova_id)
-            message['tipo'] = 'professor'
-        else:
-            message = gen_feedback_individual(prova_id, "current_user.id")
-            message['tipo'] = 'aluno'
-    except Exception as e:
-        return {'success': False, 'message': traceback.format_exc()}
-    return {'success': True, 'message': message}
-
-
 @questao.route('/responder', methods=['POST'])
+@jwt_required()
 def responder(prova_id, questao_id):
+    user = get_user_by_email(get_jwt_identity())
     try:
         data = request.json
-        resposta_data = {'questao': questao_id, 'resposta': data['resposta'], 'aluno': "current_user"}
+        resposta_data = {'prova': prova_id, 'questao': questao_id, 'resposta': data['resposta'], 'aluno': user.id}
         message = update_resposta(resposta_data)
     except Exception as e:
+        print(traceback.format_exc())
         return {'success': False, 'message': traceback.format_exc()}
     return {'success': True, 'message': message}

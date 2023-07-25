@@ -7,10 +7,12 @@ from flask_cors import CORS
 
 from flask_jwt_extended import JWTManager
 
+from .extensions import db
+from .commands import seed
+
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
-db = SQLAlchemy()
 
 def create_app():
     app = Flask(__name__)
@@ -40,5 +42,7 @@ def create_app():
     app.register_blueprint(prova_blueprint)
 
     migrate = Migrate(app, db)
+
+    app.cli.add_command(seed)
     
     return app

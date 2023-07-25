@@ -10,10 +10,12 @@ export default {
   components: {QuestaoComponent},
   setup() {
     var info = {data:{}}
+    var tipo = null
+    var alunos = []
     const renderComponent = ref(true);
     var isLogged = ref(sessionStorage.getItem('token'))
 
-    return {isLogged, info, renderComponent}
+    return {isLogged, info, renderComponent, tipo, alunos}
   },
   mounted() {
     if (!this.isLogged) {
@@ -45,9 +47,10 @@ export default {
         .catch((err) => {
           alert(err);
         });
+      this.tipo = this.info.data.tipo
+      this.alunos = this.info.data.alunos
       },
     async forceRender() {
-      this.info.data.provas = []
    // Remove MyComponent from the DOM
    this.renderComponent = false;
 
@@ -70,12 +73,22 @@ export default {
     <div class="hero-body">
         <div v-if="renderComponent" class="column is-4 is-offset-4">
           <h3 class="title">Prova</h3>
+          <div v-if="tipo === 'professor'&&info.data.done">
+              <label>Aluno:</label>
+              <select v-model="info.data" v-on:change="forceRender">
+              <option v-for="aluno in alunos" :value="aluno">Id: {{aluno.aluno}} - Nota: {{aluno.nota}}</option>
+            </select>
+            </div>
+          <label>Total: {{info.data.total}} pts</label>
+          <br>
+          <label v-if="info.data.done">Nota: {{info.data.nota}} pts</label>
+          <br>
           <div class="questoes">
             <div class="questao" v-for="q in info.data.questoes" :key="q">
-              <QuestaoComponent  v-bind="q" :edit="info.data.edit"/>
+              <QuestaoComponent @delete="get" v-bind="q" :edit="info.data.edit" :done="info.data.done"/>
             </div>
           </div>
-          <div v-if="info.data.edit" id="AddQuestao">
+          <div v-if="info.data.edit&&!(info.data.done)" id="AddQuestao">
             <button v-on:click="addQuestao">Adicionar Questao</button>
           </div>
         </div>

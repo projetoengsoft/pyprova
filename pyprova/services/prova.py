@@ -1,4 +1,5 @@
 from flask import jsonify
+from datetime import datetime
 
 from .. import db
 from ..models.user import User
@@ -82,7 +83,7 @@ def create_questao(questao_data):
 
 
 def update_questao(questao_data):
-    questao = Questao.query.filter_by(id=questao_data['id']).firtst()
+    questao = Questao.query.filter_by(id=questao_data['id']).first()
     if questao:
         questao.comando = questao_data['comando']
         opcoes = ";;".join(questao_data['opcoes'])
@@ -95,7 +96,7 @@ def update_questao(questao_data):
 
 
 def delete_questao(questao_data):
-    questao = Questao.query.filter_by(id=questao_data['id']).firtst()
+    questao = Questao.query.filter_by(id=questao_data['id']).first()
     if questao:
         db.session.delete(questao)
         db.session.commit()
@@ -103,8 +104,8 @@ def delete_questao(questao_data):
     raise Exception('Questao not found!')
 
 
-def get_questoes(prova_id, show_ans=False):
-    message = {'questoes': []}
+def get_questoes(prova_id, aluno=None,show_ans=False):
+    message = {'questoes': [], 'done': False}
     questoes = Questao.query.filter_by(prova=prova_id)
 
     for q in questoes:
@@ -114,7 +115,12 @@ def get_questoes(prova_id, show_ans=False):
                    'opcoes': q.opcoes.split(';;'),
                    'valor': q.valor,
                    'gabarito': None,
-                   'resposta': None}
+                   'resposta': None,
+                   'correct': False}
+        if aluno:
+            resposta = Resposta.query.filter_by(questao=q.id, aluno=aluno).first()
+            if resposta:
+                questao['resposta'] = resposta.resposta
         if show_ans:
             questao['gabarito'] = q.gabarito
         message['questoes'].append(questao)
@@ -123,7 +129,7 @@ def get_questoes(prova_id, show_ans=False):
 
 
 def detail_questao(questao_id):
-    q = Questao.query.filter_by(id=questao_id)
+    q = Questao.query.filter_by(id=questao_id).first()
 
     if not q:
         raise("Questao not found!")
@@ -150,8 +156,14 @@ def create_respostas(aluno_id, prova_id):
 
 
 def update_resposta(resposta_data):
-    resposta = Resposta.query.filter_by(aluno=resposta_data['aluno'], questao=resposta_data['questao']).first()
-    resposta.resposta = resposta_data['resposta']
+    resposta = Resposta.query.filter_by(aluno=resposta_data['aluno'])
+    resposta = resposta.filter_by(questao=resposta_data['questao']).first()
+
+    if not resposta:
+        new_resposta = Resposta(questao=resposta_data['questao'], aluno=resposta_data['aluno'], resposta=resposta_data['resposta'])
+        db.session.add(new_resposta)
+    else:
+        resposta.resposta = resposta_data['resposta']
     db.session.commit()
     return "Resposta updated successfully!"
 
@@ -170,11 +182,11 @@ def check_option(gabarito,resposta):
 
 
 # Passar resultado de query para a funcao
-def check_ans(resposta):
-    if resposta.questao.tipo == 'num':
-        return check_num(resposta.questao.gabarito, resposta.resposta)
-    if resposta.questao.tipo == 'vf' or resposta.questao.tipo == 'option':
-        return check_option(resposta.questao.gabarito, resposta.resposta)
+def check_ans(resposta, tipo, gabarito):
+    if tipo == 'num':
+        return check_num(gabarito, resposta.resposta)
+    if tipo == 'vf' or tipo == 'mul':
+        return check_option(gabarito, resposta.resposta)
 
 
 
@@ -182,15 +194,17 @@ def gen_feedback_individual(aluno_id, prova_id):
     message = get_questoes(prova_id, show_ans=True)
     message['total'] = 0
     message['nota'] = 0
+    message['done'] = True
+    message['aluno'] = aluno_id
 
     for q in message['questoes']:
-        resposta = Resposta.query.filter_by(questao=q['id'], aluno=aluno_id)
-        q['resposta'] = resposta.resposta
-        q['correct'] = False
-        message['total'] += q.valor
-        if check_ans(resposta):
-            message['nota'] += q.valor
-            q['correct'] = True
+        resposta = Resposta.query.filter_by(questao=q['id'], aluno=aluno_id).first()
+        if resposta:
+            q['resposta'] = resposta.resposta
+            if check_ans(resposta,q['tipo'],q['gabarito']):
+                message['nota'] += q['valor']
+                q['correct'] = True
+        message['total'] += q['valor']
 
     return message
 
@@ -199,13 +213,15 @@ def gen_feedback_individual(aluno_id, prova_id):
 def gen_feed_back(prova_id):
     inscritos = Inscricao.query.filter_by(prova=prova_id)
     inscritos = [i.aluno for i in inscritos]
+    total = None
 
     alunos = {}
 
     for i in inscritos:
-        alunos[i.id] = gen_feedback_individual(aluno_id=i.id, prova_id=prova_id)
+        alunos[i] = gen_feedback_individual(aluno_id=i, prova_id=prova_id)
+        total = alunos[i]['total']
 
-    return alunos
+    return {'questoes': [], 'alunos': alunos, 'done': True, 'nota': None, 'total': total}
 
 def register_prova(prova_id, aluno_id):
     p = Prova.query.filter_by(id=prova_id).first()
@@ -219,7 +235,7 @@ def register_prova(prova_id, aluno_id):
         new_inscricao = Inscricao(aluno=aluno_id, prova=prova_id)
         db.session.add(new_inscricao)
         db.session.commit()
-        create_respostas(aluno_id,prova_id)
+        # create_respostas(aluno_id,prova_id)
         return "Inscricao Concluida!"
     raise Exception("Inscicao repetida!")
 

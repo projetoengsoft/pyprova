@@ -21,6 +21,10 @@ flask db migrate -m "alguma mensagem"
 ```
 flask db upgrade
 ```
+#### Inicie a Seed
+```
+flask seed
+```
 #### Inicie a aplicação backend:
 ```
 flask run
